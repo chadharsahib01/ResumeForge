@@ -51,14 +51,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <ResumeForm onSubmit={handleGenerateResume} isLoading={isLoading} />
           <div className="lg:sticky top-8">
             <h2 className="text-2xl font-bold mb-4 text-foreground font-headline">Preview</h2>
-            <Card className="h-auto min-h-[792px] lg:h-[792px] overflow-auto">
+            <Card className="h-auto min-h-[792px] lg:h-[792px] overflow-auto bg-card/60 backdrop-blur-xl border border-white/20 shadow-lg">
               <CardContent className="p-0">
                 {isLoading ? (
                   <div className="space-y-4 p-6">

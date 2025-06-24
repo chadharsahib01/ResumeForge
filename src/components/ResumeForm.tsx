@@ -19,15 +19,15 @@ interface ResumeFormProps {
 
 const templates = [
   { name: 'Modern',
-    image: 'https://placehold.co/400x566/3F51B5/FFFFFF.png',
+    image: 'https://placehold.co/400x566/E9EBF8/3F51B5.png',
     aiHint: 'resume modern'
   },
   { name: 'Classic',
-    image: 'https://placehold.co/400x566/F0F2F5/333333.png',
+    image: 'https://placehold.co/400x566/F5F5F5/333333.png',
     aiHint: 'resume classic'
   },
   { name: 'Creative',
-    image: 'https://placehold.co/400x566/009688/FFFFFF.png',
+    image: 'https://placehold.co/400x566/E0F2F1/009688.png',
     aiHint: 'resume creative'
   },
 ];
@@ -103,7 +103,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ onSubmit, isLoading }) => {
         value={value}
         onChange={(e) => handleParsedChange(section, e.target.value)}
         rows={rows}
-        className="bg-card"
+        className="bg-background/10 border-white/20 focus:bg-background/20"
       />
     </div>
   );
@@ -111,7 +111,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ onSubmit, isLoading }) => {
   const arraySeparator = '\n---\n';
 
   return (
-    <Card>
+    <Card className="bg-card/60 backdrop-blur-xl border border-white/20 shadow-lg">
       <CardHeader>
         <div className="flex justify-between items-start">
             <div>
@@ -137,7 +137,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ onSubmit, isLoading }) => {
                 rows={15}
                 value={resumeText}
                 onChange={(e) => setResumeText(e.target.value)}
-                className="bg-card"
+                className="bg-background/10 border-white/20 focus:bg-background/20"
               />
               <Button type="button" onClick={handleParse} disabled={isParsing} className="w-full mt-2">
                 {isParsing ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Wand2 className="mr-2 h-5 w-5" />}
@@ -182,7 +182,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ onSubmit, isLoading }) => {
                         onClick={() => setSelectedTemplate(template.name)}
                         className={cn(
                         'relative block w-full rounded-lg border-2 p-1 transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                        selectedTemplate === template.name ? 'border-primary' : 'border-border hover:border-primary/50'
+                        selectedTemplate === template.name ? 'border-primary' : 'border-transparent hover:border-primary/50'
                         )}
                     >
                         <Image
