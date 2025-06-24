@@ -39,7 +39,12 @@ Resume Text:
 Template Name:
 {{{templateName}}}
 
-Format the resume text into a single HTML string. Use inline CSS styles for all formatting. Do not use Tailwind CSS classes. Do not include \`<html>\`, \`<head>\`, or \`<body>\` tags. The final output must be a self-contained block of HTML that can be injected into a \`<div>\`. Make it look professional and polished, suitable for a resume. Use a common sans-serif font like Arial or Helvetica.
+Format the resume text into a single HTML string. **Crucially, you must use inline CSS styles for all formatting.** Do not use external stylesheets or Tailwind CSS classes. Do not include \`<html>\`, \`<head>\`, or \`<body>\` tags. The final output must be a self-contained block of HTML that can be injected into a \`<div>\`.
+
+Make it look professional and polished, suitable for printing as a PDF. Use a common sans-serif font like Arial or Helvetica. The layout should be clean and easy to read. Use professional colors (e.g., shades of blue, gray, black).
+
+Here is an example of the kind of inline styling expected:
+\`<h2 style="font-size: 20px; color: #3F51B5; border-bottom: 2px solid #3F51B5; padding-bottom: 5px; margin-top: 20px;">Work Experience</h2>\`
 `,
 });
 
