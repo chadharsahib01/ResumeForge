@@ -19,7 +19,7 @@ const FormatResumeContentInputSchema = z.object({
 export type FormatResumeContentInput = z.infer<typeof FormatResumeContentInputSchema>;
 
 const FormatResumeContentOutputSchema = z.object({
-  formattedResume: z.string().describe('The formatted resume content, ready for PDF conversion.'),
+  formattedResume: z.string().describe('The formatted resume content, as an HTML string.'),
 });
 export type FormatResumeContentOutput = z.infer<typeof FormatResumeContentOutputSchema>;
 
@@ -39,8 +39,8 @@ Resume Text:
 Template Name:
 {{{templateName}}}
 
-Format the resume text according to the specified template. Ensure the output is a well-formatted, ATS-friendly resume.
-`,  
+Format the resume text into a single HTML string. Use inline CSS styles for all formatting. Do not use Tailwind CSS classes. Do not include \`<html>\`, \`<head>\`, or \`<body>\` tags. The final output must be a self-contained block of HTML that can be injected into a \`<div>\`. Make it look professional and polished, suitable for a resume. Use a common sans-serif font like Arial or Helvetica.
+`,
 });
 
 const formatResumeContentFlow = ai.defineFlow(

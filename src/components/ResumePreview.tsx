@@ -31,7 +31,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ formattedResume }) => {
          </Button>
        </div>
       <div id="resume-content-wrapper">
-        <pre id="resume-content" className="whitespace-pre-wrap font-sans text-sm bg-transparent p-6">{formattedResume}</pre>
+        <div 
+          id="resume-content" 
+          className="bg-transparent p-6"
+          dangerouslySetInnerHTML={{ __html: formattedResume }} 
+        />
       </div>
     </div>
   );
