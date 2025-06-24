@@ -39,25 +39,25 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    --background: 220 10% 10%;
-    --foreground: 0 0% 98%;
-    --card: 220 10% 12%;
-    --card-foreground: 0 0% 98%;
-    --popover: 220 10% 10%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 233 49% 58%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
+    --background: 224 71% 4%;
+    --foreground: 210 40% 98%;
+    --card: 224 71% 6%;
+    --card-foreground: 210 40% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
     --accent: 174 100% 39%;
     --accent-foreground: 0 0% 9%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 233 49% 58%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -79,7 +79,7 @@
     @apply border-border;
   }
   body {
-    @apply text-foreground;
+    @apply bg-background text-foreground;
   }
 }
 
@@ -93,6 +93,9 @@
 }
 
 @media print {
+  body {
+    background-color: #fff !important;
+  }
   body * {
     visibility: hidden;
   }
@@ -107,13 +110,17 @@
     height: 100%;
     margin: 0;
     padding: 0;
+    background-color: #fff;
   }
   #resume-content {
     margin: 0;
     padding: 0;
+    /* Ensure the resume content itself has a white background for printing */
+    background-color: #fff !important; 
+    color: #000 !important;
   }
   @page {
     size: A4;
-    margin: 1in;
+    margin: 0.5in;
   }
 }

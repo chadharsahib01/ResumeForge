@@ -19,9 +19,10 @@ const TemplateRecommendationInputSchema = z.object({
 });
 export type TemplateRecommendationInput = z.infer<typeof TemplateRecommendationInputSchema>;
 
+// Enforce that the output is one of the available templates.
 const TemplateRecommendationOutputSchema = z.object({
-  templateName: z.string().describe('The name of the recommended template.'),
-  templateDescription: z.string().describe('A description of the recommended template and why it is suitable.'),
+  templateName: z.enum(['Modern', 'Classic', 'Creative']).describe('The name of the recommended template.'),
+  reason: z.string().describe('A brief explanation of why this template is a good fit for the user\'s resume content.'),
 });
 export type TemplateRecommendationOutput = z.infer<typeof TemplateRecommendationOutputSchema>;
 
@@ -33,16 +34,19 @@ const prompt = ai.definePrompt({
   name: 'templateRecommendationPrompt',
   input: {schema: TemplateRecommendationInputSchema},
   output: {schema: TemplateRecommendationOutputSchema},
-  prompt: `You are an expert resume template recommender. Based on the resume text provided, you will recommend the best resume template for the user. The template should be ATS-friendly and optimized for HR preferences.
+  prompt: `You are an expert resume template recommender. Based on the resume text provided, you will recommend the best resume template for the user.
+
+The available templates are "Modern", "Classic", and "Creative".
+
+-   **Modern**: Best for tech, startups, and contemporary fields. Features clean lines and a dynamic layout.
+-   **Classic**: Best for traditional fields like law, finance, and academia. Features a timeless, professional, and straightforward format.
+-   **Creative**: Best for design, arts, and marketing fields. Features a unique layout that allows for more visual expression.
+
+Analyze the content of the resume (e.g., job titles, industries mentioned, skills) and choose the single most appropriate template from the list. Provide a very brief, one-sentence reason for your choice.
 
 Resume Text:
 {{{resumeText}}}
-
-Consider various resume templates and recommend the most suitable one, including a brief explanation of why the template is a good fit.
-
-Output:
-Template Name: {templateName}
-Template Description: {templateDescription}`,
+`,
 });
 
 const recommendTemplateFlow = ai.defineFlow(

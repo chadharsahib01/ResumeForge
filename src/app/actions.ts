@@ -2,6 +2,8 @@
 
 import { formatResumeContent, FormatResumeContentInput } from '@/ai/flows/format-resume-content';
 import { parseResumeText, ParseResumeTextInput, ParseResumeTextOutput } from '@/ai/flows/parse-resume-text';
+import { recommendTemplate, TemplateRecommendationInput, TemplateRecommendationOutput } from '@/ai/flows/template-recommendation';
+import { generateCoverLetter, GenerateCoverLetterInput, GenerateCoverLetterOutput } from '@/ai/flows/generate-cover-letter';
 
 interface ActionResult {
   formattedResume?: string;
@@ -38,4 +40,41 @@ export async function parseResumeAction(input: ParseResumeTextInput): Promise<Pa
     console.error('Error parsing resume:', e);
     return { error: 'An unexpected error occurred while parsing your resume. Please try again later.' };
   }
+}
+
+interface RecommendResult {
+    recommendation?: TemplateRecommendationOutput;
+    error?: string;
+}
+
+export async function recommendTemplateAction(input: TemplateRecommendationInput): Promise<RecommendResult> {
+    try {
+        const recommendation = await recommendTemplate(input);
+        if (!recommendation) {
+            return { error: 'Failed to get template recommendation.' };
+        }
+        return { recommendation };
+    } catch (e: any) {
+        console.error('Error recommending template:', e);
+        // Don't surface this error to the user, it's a non-critical feature.
+        return { error: 'Could not get a recommendation.' };
+    }
+}
+
+interface CoverLetterResult {
+    coverLetter?: string;
+    error?: string;
+}
+
+export async function generateCoverLetterAction(input: GenerateCoverLetterInput): Promise<CoverLetterResult> {
+    try {
+        const { coverLetter } = await generateCoverLetter(input);
+        if (!coverLetter) {
+            return { error: 'Failed to generate cover letter. The AI model did not return any content.' };
+        }
+        return { coverLetter };
+    } catch (e: any) {
+        console.error('Error generating cover letter:', e);
+        return { error: 'An unexpected error occurred while generating your cover letter. Please try again later.' };
+    }
 }
