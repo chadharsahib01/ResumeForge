@@ -1,4 +1,5 @@
-{'use server';
+// This is an example Genkit flow definition.
+'use server';
 
 /**
  * @fileOverview Formats resume content based on a selected template.
@@ -14,6 +15,7 @@ import {z} from 'genkit';
 const FormatResumeContentInputSchema = z.object({
   resumeText: z.string().describe('The raw text of the resume content.'),
   templateName: z.string().describe('The name of the selected resume template. One of "Modern", "Classic", or "Creative".'),
+  logoDataUri: z.string().optional().describe('An optional data URI for a personal logo image.'),
 });
 export type FormatResumeContentInput = z.infer<typeof FormatResumeContentInputSchema>;
 
@@ -39,12 +41,14 @@ Selected Template Name:
 {{{templateName}}}
 
 **CRITICAL INSTRUCTIONS:**
-1.  **DO NOT USE ANY INLINE CSS STYLES (e.g., \`<div style="...">\`).**
-2.  **DO NOT INCLUDE A \`<style>\` TAG, \`<html>\`, \`<head>\`, or \`<body>\` TAGS.**
-3.  The entire output must be a single, well-formed HTML string ready to be injected into a parent container.
-4.  Use the following semantic class names precisely as specified. This structure is essential for the front-end styling to be applied correctly.
+1.  **If a \`logoDataUri\` is provided, you MUST include it at the very top of the resume.** The image tag should look like this: \`<img src="{{{logoDataUri}}}" alt="Personal Logo" class="personal-logo" />\`. It should be inside the main \`<div class="resume-wrapper">\`, but before any other content like contact information.
+2.  **DO NOT USE ANY INLINE CSS STYLES (e.g., \`<div style="...">\`).**
+3.  **DO NOT INCLUDE A \`<style>\` TAG, \`<html>\`, \`<head>\`, or \`<body>\` TAGS.**
+4.  The entire output must be a single, well-formed HTML string ready to be injected into a parent container.
+5.  Use the following semantic class names precisely as specified. This structure is essential for the front-end styling to be applied correctly.
 
     -   **Main Container:** The entire resume should be wrapped in \`<div class="resume-wrapper">\`.
+    -   **Logo:** If present, the logo image should be \`<img class="personal-logo" ... />\`.
     -   **Contact Info:** Use \`<div class="contact-info">\`. Inside, use simple \`<p>\` tags for name, email, phone, etc. The main name should be in an \`<h1>\`.
     -   **Summary:** Use \`<div class="summary">\`. The content should be in a \`<p>\` tag.
     -   **Sections (like Experience, Education):** Each major section must be wrapped in \`<div class="section">\`.

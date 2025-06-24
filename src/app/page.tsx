@@ -8,16 +8,18 @@ import CoverLetterGenerator from '@/components/CoverLetterGenerator';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { generateResumeAction, recommendTemplateAction, parseResumeAction } from '@/app/actions';
+import { generateResumeAction, recommendTemplateAction, parseResumeAction, generateLogoAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { ParseResumeTextOutput } from '@/ai/flows/parse-resume-text';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
+  const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
   const [formattedResume, setFormattedResume] = useState('');
   const [resumeText, setResumeText] = useState('');
   const [parsedData, setParsedData] = useState<ParseResumeTextOutput | null>(null);
+  const [logoDataUri, setLogoDataUri] = useState('');
 
   const { toast } = useToast();
 
@@ -63,6 +65,33 @@ export default function Home() {
     }
     return { recommendedTemplate: null, reason: null };
   };
+  
+  const handleGenerateLogo = async (name: string, industry: string) => {
+    if (!name.trim() || !industry.trim()) {
+      toast({
+        title: 'Missing Information',
+        description: 'Please provide your name and industry to generate a logo.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsGeneratingLogo(true);
+    const result = await generateLogoAction({ name, industry });
+    if (result.error || !result.logoDataUri) {
+      toast({
+        title: 'Logo Generation Failed',
+        description: result.error || 'The AI could not generate a logo. Please try again.',
+        variant: 'destructive',
+      });
+    } else {
+      setLogoDataUri(result.logoDataUri);
+      toast({
+        title: 'Logo Generated!',
+        description: "Your personal logo is ready to be added to your resume.",
+      });
+    }
+    setIsGeneratingLogo(false);
+  };
 
   const handleGenerateResume = async (finalResumeText: string, templateName: string) => {
     if (!finalResumeText.trim()) {
@@ -85,7 +114,11 @@ export default function Home() {
     setIsLoading(true);
     setFormattedResume('');
 
-    const result = await generateResumeAction({ resumeText: finalResumeText, templateName });
+    const result = await generateResumeAction({ 
+      resumeText: finalResumeText, 
+      templateName,
+      logoDataUri: logoDataUri || undefined
+    });
 
     if (result.error) {
       toast({
@@ -114,12 +147,15 @@ export default function Home() {
                 <ResumeForm 
                     onGenerateSubmit={handleGenerateResume} 
                     onParseAndRecommend={handleParseAndRecommend}
+                    onGenerateLogo={handleGenerateLogo}
                     isLoading={isLoading || isParsing}
                     isParsing={isParsing}
+                    isGeneratingLogo={isGeneratingLogo}
                     resumeText={resumeText}
                     setResumeText={setResumeText}
                     parsedData={parsedData}
                     setParsedData={setParsedData}
+                    logoDataUri={logoDataUri}
                 />
                 <div className="lg:sticky top-8">
                     <h2 className="text-3xl font-bold mb-4 text-foreground font-headline text-center lg:text-left">Preview</h2>

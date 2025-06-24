@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Sparkles, Loader2, Check, Wand2, ArrowLeft, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -15,17 +17,26 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface ResumeFormProps {
   onGenerateSubmit: (resumeText: string, templateName: string) => void;
   onParseAndRecommend: () => Promise<{ recommendedTemplate: string | null; reason: string | null; }>;
+  onGenerateLogo: (name: string, industry: string) => void;
   isLoading: boolean;
   isParsing: boolean;
+  isGeneratingLogo: boolean;
   resumeText: string;
   setResumeText: (text: string) => void;
   parsedData: ParseResumeTextOutput | null;
   setParsedData: (data: ParseResumeTextOutput | null) => void;
+  logoDataUri: string;
 }
 
 const templates = [
@@ -46,14 +57,19 @@ const templates = [
 const ResumeForm: React.FC<ResumeFormProps> = ({ 
     onGenerateSubmit, 
     onParseAndRecommend,
+    onGenerateLogo,
     isLoading,
     isParsing,
+    isGeneratingLogo,
     resumeText,
     setResumeText,
     parsedData,
-    setParsedData
+    setParsedData,
+    logoDataUri
 }) => {
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0].name);
+  const [logoName, setLogoName] = useState('');
+  const [logoIndustry, setLogoIndustry] = useState('Professional');
   const { toast } = useToast();
 
   const handleParse = async () => {
@@ -215,7 +231,76 @@ const ResumeForm: React.FC<ResumeFormProps> = ({
               ))}
             </div>
           </div>
-          <Button type="submit" disabled={isLoading} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-6">
+          
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>
+                <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-accent" />
+                    <span className="font-semibold text-lg">Personal Brand Generator (Optional)</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-4 pt-4">
+                <p className="text-sm text-muted-foreground">
+                  Create a unique monogram logo from your initials to make your resume stand out.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="logo-name">Your Full Name</Label>
+                        <Input 
+                          id="logo-name" 
+                          placeholder="e.g., Ali Raza Chadhar" 
+                          value={logoName}
+                          onChange={(e) => setLogoName(e.target.value)}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="logo-industry">Your Industry/Field</Label>
+                        <Input 
+                          id="logo-industry" 
+                          placeholder="e.g., Software Engineer" 
+                          value={logoIndustry}
+                          onChange={(e) => setLogoIndustry(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <Button 
+                    type="button" 
+                    onClick={() => onGenerateLogo(logoName, logoIndustry)} 
+                    disabled={isGeneratingLogo || !logoName}
+                    variant="outline"
+                    className="w-full"
+                >
+                  {isGeneratingLogo ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  ) : (
+                    <Wand2 className="mr-2 h-5 w-5" />
+                  )}
+                  Generate My Logo
+                </Button>
+                {(isGeneratingLogo || logoDataUri) && (
+                    <div className="space-y-2 text-center">
+                        <Label>Logo Preview</Label>
+                        <div className="w-full p-4 rounded-lg bg-muted/50 flex items-center justify-center min-h-[100px]">
+                           {isGeneratingLogo ? (
+                                <Skeleton className="h-20 w-20 rounded-full" />
+                           ) : (
+                                <Image
+                                    src={logoDataUri}
+                                    alt="Generated Personal Logo"
+                                    width={80}
+                                    height={80}
+                                    className="bg-white rounded-md p-1 shadow-sm"
+                                />
+                           )}
+                        </div>
+                    </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Button type="submit" disabled={isLoading || isGeneratingLogo} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-6">
             {isLoading ? (
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             ) : (

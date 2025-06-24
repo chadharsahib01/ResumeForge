@@ -124,3 +124,9 @@
     margin: 0.5in;
   }
 }
+
+.personal-logo {
+  max-height: 60px;
+  margin: 0 auto 1.5rem auto;
+  display: block;
+}

@@ -4,6 +4,7 @@ import { formatResumeContent, FormatResumeContentInput } from '@/ai/flows/format
 import { parseResumeText, ParseResumeTextInput, ParseResumeTextOutput } from '@/ai/flows/parse-resume-text';
 import { recommendTemplate, TemplateRecommendationInput, TemplateRecommendationOutput } from '@/ai/flows/template-recommendation';
 import { generateCoverLetter, GenerateCoverLetterInput, GenerateCoverLetterOutput } from '@/ai/flows/generate-cover-letter';
+import { generateLogo, GenerateLogoInput } from '@/ai/flows/generate-logo';
 
 interface ActionResult {
   formattedResume?: string;
@@ -76,5 +77,23 @@ export async function generateCoverLetterAction(input: GenerateCoverLetterInput)
     } catch (e: any) {
         console.error('Error generating cover letter:', e);
         return { error: 'An unexpected error occurred while generating your cover letter. Please try again later.' };
+    }
+}
+
+interface LogoResult {
+    logoDataUri?: string;
+    error?: string;
+}
+
+export async function generateLogoAction(input: GenerateLogoInput): Promise<LogoResult> {
+    try {
+        const { logoDataUri } = await generateLogo(input);
+        if (!logoDataUri) {
+            return { error: 'Failed to generate logo. The AI model did not return an image.' };
+        }
+        return { logoDataUri };
+    } catch (e: any) {
+        console.error('Error generating logo:', e);
+        return { error: 'An unexpected error occurred while generating your logo. Please try again later.' };
     }
 }
