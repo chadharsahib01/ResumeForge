@@ -1,4 +1,3 @@
-// This is an example Genkit flow definition.
 'use server';
 
 /**
@@ -32,39 +31,44 @@ const prompt = ai.definePrompt({
   name: 'formatResumeContentPrompt',
   input: {schema: FormatResumeContentInputSchema},
   output: {schema: FormatResumeContentOutputSchema},
-  prompt: `You are an AI resume formatting expert. Your task is to convert raw resume text into clean, structured, and semantic HTML based on a selected template style.
+  prompt: `You are an expert resume formatting expert specializing in creating clean, semantic HTML that is both visually appealing on screen and prints perfectly.
 
-Resume Text to Format:
-{{{resumeText}}}
-
-Selected Template Name:
-{{{templateName}}}
+**INPUTS:**
+- **Resume Text:**
+  {{{resumeText}}}
+- **Selected Template Name:**
+  {{{templateName}}}
+{{#if logoDataUri}}
+- **Personal Logo:**
+  A personal logo has been provided. You MUST include it. The URI is: {{{logoDataUri}}}
+{{/if}}
 
 **CRITICAL INSTRUCTIONS:**
-1.  **If a \`logoDataUri\` is provided, you MUST include it at the very top of the resume.** The image tag should look like this: \`<img src="{{{logoDataUri}}}" alt="Personal Logo" class="personal-logo" />\`. It should be inside the main \`<div class="resume-wrapper">\`, but before any other content like contact information.
-2.  **DO NOT USE ANY INLINE CSS STYLES (e.g., \`<div style="...">\`).**
-3.  **DO NOT INCLUDE A \`<style>\` TAG, \`<html>\`, \`<head>\`, or \`<body>\` TAGS.**
-4.  The entire output must be a single, well-formed HTML string ready to be injected into a parent container.
-5.  Use the following semantic class names precisely as specified. This structure is essential for the front-end styling to be applied correctly.
+1.  **Output MUST be a single, well-formed HTML string.**
+2.  **The entire resume must be wrapped in a single main container: \`<div class="resume-wrapper">\`.**
+3.  **{{#if logoDataUri}}The user provided a logo. You MUST place it at the top of the resume, inside the wrapper div. The image tag MUST be exactly: \`<img src="{{{logoDataUri}}}" alt="Personal Logo" class="personal-logo" />\`{{/if}}**
+4.  **Use ONLY the specified semantic class names.** This is essential for styling and printing.
+5.  **ABSOLUTELY NO INLINE CSS (\`style\` attribute) OR \`<style>\` TAGS.** Do not include \`<html>\`, \`<head>\`, or \`<body>\` tags.
 
-    -   **Main Container:** The entire resume should be wrapped in \`<div class="resume-wrapper">\`.
-    -   **Logo:** If present, the logo image should be \`<img class="personal-logo" ... />\`.
-    -   **Contact Info:** Use \`<div class="contact-info">\`. Inside, use simple \`<p>\` tags for name, email, phone, etc. The main name should be in an \`<h1>\`.
-    -   **Summary:** Use \`<div class="summary">\`. The content should be in a \`<p>\` tag.
-    -   **Sections (like Experience, Education):** Each major section must be wrapped in \`<div class="section">\`.
-    -   **Section Title:** Inside each section, the title must be an \`<h2 class="section-title">\`. For example: \`<h2 class="section-title">Work Experience</h2>\`.
-    -   **Individual Entries (Job, School):** Each entry within a section (e.g., a single job) must be in \`<div class="entry">\`.
-    -   **Entry Header:** The top part of an entry containing the title and date must be in \`<div class="entry-header">\`.
-    -   **Entry Sub-header:** The part of an entry with company/school and location must be in \`<div class="entry-subheader">\`.
-    -   **Specific Fields:**
-        -   Job Title/Degree: \`<span class="entry-title">Senior Engineer</span>\`
-        -   Company/School Name: \`<span class="entry-company">Tech Solutions Inc.</span>\` or \`<span class="entry-school">University of Technology</span>\`
-        -   Date Range: \`<span class="entry-date">Jan 2020 - Present</span>\`
-        -   Location: \`<span class="entry-location">Remote</span>\`
-    -   **Details/Bullet Points:** Use a \`<ul class="details">\` for description bullet points, with each point being an \`<li>\`.
-    -   **Skills:** For a skills section, use a \`<ul class="skills-list">\` with each skill being an \`<li>\`.
+**HTML STRUCTURE & CLASS NAMES:**
+-   **Main Container:** \`<div class="resume-wrapper">\`.
+-   **Logo (if present):** \`<img class="personal-logo" ... />\`.
+-   **Contact Info:** \`<div class="contact-info">\`. Use \`<p>\` tags for details and an \`<h1>\` for the name.
+-   **Summary:** \`<div class="summary">\` with a \`<p>\` tag inside.
+-   **Sections (Experience, Education, etc.):** Wrap each in \`<div class="section">\`.
+-   **Section Title:** Use \`<h2 class="section-title">\`.
+-   **Individual Entries (Job, School):** Wrap each in \`<div class="entry">\`.
+-   **Entry Header:** \`<div class="entry-header">\` containing title and date.
+-   **Entry Sub-header:** \`<div class="entry-subheader">\` for company/school and location.
+-   **Specific Fields:**
+    -   Job Title/Degree: \`<span class="entry-title">\`
+    -   Company/School Name: \`<span class="entry-company">\` or \`<span class="entry-school">\`
+    -   Date Range: \`<span class="entry-date">\`
+    -   Location: \`<span class="entry-location">\`
+-   **Details/Bullet Points:** Use \`<ul class="details">\` with \`<li>\` for each point.
+-   **Skills:** Use a \`<ul class="skills-list">\` with each skill as an \`<li>\`.
 
-Example of a "Work Experience" entry structure:
+**Example Entry:**
 \`\`\`html
 <div class="entry">
   <div class="entry-header">
@@ -82,7 +86,7 @@ Example of a "Work Experience" entry structure:
 </div>
 \`\`\`
 
-Now, generate the complete HTML for the provided resume text and template.
+Now, generate the complete HTML for the provided resume text.
 `,
 });
 
@@ -94,10 +98,13 @@ const formatResumeContentFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    if (!output) {
-      throw new Error('AI model did not return any content.');
+    if (!output || !output.formattedResume) {
+      throw new Error('AI model did not return any valid content.');
     }
-    // The prompt now generates the complete, clean HTML. We just return it.
+    // Basic validation to ensure it's likely HTML
+    if (!output.formattedResume.includes('<div')) {
+      throw new Error('AI model returned non-HTML content.');
+    }
     return output;
   }
 );
