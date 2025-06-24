@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ResumeForge AI',
+  title: 'CV Bnao',
   description: 'Create a professional, ATS-friendly resume from your text in seconds.',
 };
 

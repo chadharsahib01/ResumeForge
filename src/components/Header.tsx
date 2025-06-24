@@ -8,7 +8,7 @@ const Header = () => {
           <FileText className="h-6 w-6" />
         </div>
         <h1 className="text-2xl font-bold text-primary font-headline">
-          ResumeForge AI
+          CV Bnao
         </h1>
       </div>
     </header>
