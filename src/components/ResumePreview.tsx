@@ -24,16 +24,15 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ formattedResume }) => {
 
   return (
     <div className="relative group">
-       <div id="print-button-container" className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
-         <Button onClick={handlePrint} variant="default">
+       <div id="print-button-container" className="absolute top-4 right-4 z-10 print:hidden">
+         <Button onClick={handlePrint} variant="default" className="shadow-lg">
            <Download className="mr-2 h-4 w-4" />
            Download PDF
          </Button>
        </div>
       <div id="resume-content-wrapper">
         <div 
-          id="resume-content" 
-          className="bg-white dark:bg-gray-50 p-6"
+          id="resume-content"
           dangerouslySetInnerHTML={{ __html: formattedResume }} 
         />
       </div>

@@ -13,13 +13,13 @@ import {z} from 'genkit';
 
 const FormatResumeContentInputSchema = z.object({
   resumeText: z.string().describe('The raw text of the resume content.'),
-  templateName: z.string().describe('The name of the selected resume template. One of "Modern", "Classic", or "Creative".'),
+  templateName: z.string().describe('The name of the selected resume template. One of "Modern", "Classic", or "Creative". This should influence the styling.'),
   logoDataUri: z.string().optional().describe('An optional data URI for a personal logo image.'),
 });
 export type FormatResumeContentInput = z.infer<typeof FormatResumeContentInputSchema>;
 
 const FormatResumeContentOutputSchema = z.object({
-  formattedResume: z.string().describe('The formatted resume content, as a single HTML string.'),
+  formattedResume: z.string().describe('The formatted resume content, as a single, self-contained HTML string using Tailwind CSS classes.'),
 });
 export type FormatResumeContentOutput = z.infer<typeof FormatResumeContentOutputSchema>;
 
@@ -31,62 +31,50 @@ const prompt = ai.definePrompt({
   name: 'formatResumeContentPrompt',
   input: {schema: FormatResumeContentInputSchema},
   output: {schema: FormatResumeContentOutputSchema},
-  prompt: `You are an expert resume formatting expert specializing in creating clean, semantic HTML that is both visually appealing on screen and prints perfectly.
+  prompt: `You are an expert resume designer who creates visually appealing, professional resumes using HTML and Tailwind CSS.
 
-**INPUTS:**
-- **Resume Text:**
-  {{{resumeText}}}
-- **Selected Template Name:**
-  {{{templateName}}}
-{{#if logoDataUri}}
-- **Personal Logo:**
-  A personal logo has been provided. You MUST include it. The URI is: {{{logoDataUri}}}
-{{/if}}
+**TASK:**
+Convert the provided raw resume text into a single, well-formed, self-contained HTML string.
 
 **CRITICAL INSTRUCTIONS:**
-1.  **Output MUST be a single, well-formed HTML string.**
-2.  **The entire resume must be wrapped in a single main container: \`<div class="resume-wrapper">\`.**
-3.  **{{#if logoDataUri}}The user provided a logo. You MUST place it at the top of the resume, inside the wrapper div. The image tag MUST be exactly: \`<img src="{{{logoDataUri}}}" alt="Personal Logo" class="personal-logo" />\`{{/if}}**
-4.  **Use ONLY the specified semantic class names.** This is essential for styling and printing.
-5.  **ABSOLUTELY NO INLINE CSS (\`style\` attribute) OR \`<style>\` TAGS.** Do not include \`<html>\`, \`<head>\`, or \`<body>\` tags.
+1.  **OUTPUT MUST BE A SINGLE HTML STRING.**
+2.  **USE TAILWIND CSS CLASSES for all styling.** DO NOT use custom class names, <style> tags, or inline style attributes.
+3.  The entire output must be wrapped in a main container like: \`<div class="p-8 font-sans text-gray-800 bg-white">\`.
+4.  The design should be clean, professional, and easy to read. Pay attention to spacing, typography, and hierarchy.
+5.  Use the selected template name ({{{templateName}}}) as a guide for the overall aesthetic (e.g., 'Classic' should be more traditional, 'Creative' can use more color or unique layouts).
+6.  {{#if logoDataUri}}A personal logo has been provided. You MUST include it at the top of the resume inside the main wrapper. The image tag must be styled appropriately, for example: \`<img src="{{{logoDataUri}}}" alt="Personal Logo" class="mx-auto mb-6 h-16 w-16 rounded-full" />\`{{/if}}
 
-**HTML STRUCTURE & CLASS NAMES:**
--   **Main Container:** \`<div class="resume-wrapper">\`.
--   **Logo (if present):** \`<img class="personal-logo" ... />\`.
--   **Contact Info:** \`<div class="contact-info">\`. Use \`<p>\` tags for details and an \`<h1>\` for the name.
--   **Summary:** \`<div class="summary">\` with a \`<p>\` tag inside.
--   **Sections (Experience, Education, etc.):** Wrap each in \`<div class="section">\`.
--   **Section Title:** Use \`<h2 class="section-title">\`.
--   **Individual Entries (Job, School):** Wrap each in \`<div class="entry">\`.
--   **Entry Header:** \`<div class="entry-header">\` containing title and date.
--   **Entry Sub-header:** \`<div class="entry-subheader">\` for company/school and location.
--   **Specific Fields:**
-    -   Job Title/Degree: \`<span class="entry-title">\`
-    -   Company/School Name: \`<span class="entry-company">\` or \`<span class="entry-school">\`
-    -   Date Range: \`<span class="entry-date">\`
-    -   Location: \`<span class="entry-location">\`
--   **Details/Bullet Points:** Use \`<ul class="details">\` with \`<li>\` for each point.
--   **Skills:** Use a \`<ul class="skills-list">\` with each skill as an \`<li>\`.
+**INPUTS:**
+-   **Resume Text:**
+    {{{resumeText}}}
+-   **Selected Template Name:**
+    {{{templateName}}}
 
-**Example Entry:**
+**EXAMPLE HTML STRUCTURE FOR A SECTION:**
 \`\`\`html
-<div class="entry">
-  <div class="entry-header">
-    <span class="entry-title">Senior Software Engineer</span>
-    <span class="entry-date">Jan 2020 - Present</span>
+<div class="mb-6">
+  <h2 class="text-xl font-bold border-b-2 border-gray-300 pb-2 mb-3 text-gray-700">Work Experience</h2>
+  
+  <div class="mb-4">
+    <div class="flex justify-between items-baseline">
+      <h3 class="text-lg font-semibold text-gray-800">Senior Software Engineer</h3>
+      <p class="text-sm text-gray-600">Jan 2020 - Present</p>
+    </div>
+    <div class="flex justify-between items-baseline">
+      <p class="text-md font-medium text-gray-700">Tech Solutions Inc.</p>
+      <p class="text-sm text-gray-600">San Francisco, CA</p>
+    </div>
+    <ul class="list-disc list-inside mt-2 text-gray-700 space-y-1">
+      <li>Developed and maintained web applications using React and Node.js.</li>
+      <li>Led a team of 3 junior developers.</li>
+    </ul>
   </div>
-  <div class="entry-subheader">
-    <span class="entry-company">Tech Solutions Inc.</span>
-    <span class="entry-location">San Francisco, CA</span>
-  </div>
-  <ul class="details">
-    <li>Developed and maintained web applications using React and Node.js.</li>
-    <li>Led a team of 3 junior developers.</li>
-  </ul>
+
+  <!-- ... more entries ... -->
 </div>
 \`\`\`
 
-Now, generate the complete HTML for the provided resume text.
+Now, generate the complete, styled HTML for the provided resume text.
 `,
 });
 
