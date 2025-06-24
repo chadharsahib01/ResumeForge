@@ -1,1 +1,6 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/template-recommendation.ts';
+import '@/ai/flows/format-resume-content.ts';
+import '@/ai/flows/parse-resume-text.ts';
