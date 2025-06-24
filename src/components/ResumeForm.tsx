@@ -7,7 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { Sparkles, Loader2, Check } from 'lucide-react';
+import { Sparkles, Loader2, Check, Wand2, ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { parseResumeAction } from '@/app/actions';
+import type { ParseResumeTextOutput } from '@/ai/flows/parse-resume-text';
 
 interface ResumeFormProps {
   onSubmit: (resumeText: string, templateName: string) => void;
@@ -32,31 +35,143 @@ const templates = [
 const ResumeForm: React.FC<ResumeFormProps> = ({ onSubmit, isLoading }) => {
   const [resumeText, setResumeText] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0].name);
+  const [parsedData, setParsedData] = useState<ParseResumeTextOutput | null>(null);
+  const [isParsing, setIsParsing] = useState(false);
+  const { toast } = useToast();
+
+  const handleParse = async () => {
+    if (!resumeText.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please paste your resume text to analyze it.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsParsing(true);
+    setParsedData(null);
+    const result = await parseResumeAction({ resumeText });
+    setIsParsing(false);
+
+    if (result.error || !result.parsedData) {
+      toast({
+        title: 'Parsing Failed',
+        description: result.error || 'The AI could not understand the resume structure. Try adding clear headings like "Experience", "Education", and "Skills".',
+        variant: 'destructive',
+      });
+    } else {
+      setParsedData(result.parsedData);
+      toast({
+        title: 'Resume Analyzed',
+        description: "Your resume has been broken down into sections for easier editing.",
+      });
+    }
+  };
+
+  const handleParsedChange = (section: keyof ParseResumeTextOutput, value: string) => {
+    if (!parsedData) return;
+    
+    if (Array.isArray(parsedData[section])) {
+      setParsedData({ ...parsedData, [section]: value.split('\n---\n') });
+    } else {
+      setParsedData({ ...parsedData, [section]: value });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(resumeText, selectedTemplate);
+    let finalResumeText = resumeText;
+    if (parsedData) {
+      const { summary, contactInformation, workExperience, education, skills } = parsedData;
+      const sections: string[] = [];
+      if (summary) sections.push(`Summary\n${summary}`);
+      if (contactInformation) sections.push(`Contact Information\n${contactInformation}`);
+      if (workExperience?.length > 0 && workExperience[0]) sections.push(`Work Experience\n${workExperience.join('\n\n')}`);
+      if (education?.length > 0 && education[0]) sections.push(`Education\n${education.join('\n\n')}`);
+      if (skills?.length > 0 && skills[0]) sections.push(`Skills\n${skills.join(', ')}`);
+      finalResumeText = sections.join('\n\n');
+    }
+    onSubmit(finalResumeText, selectedTemplate);
   };
+  
+  const EditableField: React.FC<{label: string, value: string, section: keyof ParseResumeTextOutput, rows?: number, description?: string}> = ({label, value, section, rows = 3, description}) => (
+    <div className="space-y-2">
+      <Label htmlFor={`parsed-${section}`}>{label}</Label>
+      {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      <Textarea
+        id={`parsed-${section}`}
+        value={value}
+        onChange={(e) => handleParsedChange(section, e.target.value)}
+        rows={rows}
+        className="bg-card"
+      />
+    </div>
+  );
+  
+  const arraySeparator = '\n---\n';
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">Create Your Resume</CardTitle>
-        <CardDescription>Paste your details, select a template, and let AI do the rest.</CardDescription>
+        <div className="flex justify-between items-start">
+            <div>
+                <CardTitle className="font-headline">Create Your Resume</CardTitle>
+                <CardDescription>Paste your details, select a template, and let AI do the rest.</CardDescription>
+            </div>
+            {parsedData && (
+                 <Button variant="outline" size="sm" onClick={() => setParsedData(null)}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Raw Text
+                </Button>
+            )}
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="resume-text">Your Resume Details</Label>
-            <Textarea
-              id="resume-text"
-              placeholder="Paste your resume content here. Include headings like 'Experience', 'Education', 'Skills', etc. for best results."
-              rows={15}
-              value={resumeText}
-              onChange={(e) => setResumeText(e.target.value)}
-              className="bg-card"
-            />
-          </div>
+          {!parsedData ? (
+            <div className="space-y-2">
+              <Label htmlFor="resume-text">Your Resume Details</Label>
+              <Textarea
+                id="resume-text"
+                placeholder="Paste your resume content here. Include headings like 'Experience', 'Education', 'Skills', etc. for best results."
+                rows={15}
+                value={resumeText}
+                onChange={(e) => setResumeText(e.target.value)}
+                className="bg-card"
+              />
+              <Button type="button" onClick={handleParse} disabled={isParsing} className="w-full mt-2">
+                {isParsing ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Wand2 className="mr-2 h-5 w-5" />}
+                Analyze & Edit Sections
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4 animate-in fade-in-50 duration-500">
+                <EditableField label="Summary / Objective" value={parsedData.summary} section="summary" />
+                <EditableField label="Contact Information" value={parsedData.contactInformation} section="contactInformation" />
+                <EditableField 
+                  label="Work Experience" 
+                  value={parsedData.workExperience.join(arraySeparator)} 
+                  section="workExperience" 
+                  rows={8}
+                  description="Separate each job entry with '---' on a new line."
+                />
+                <EditableField 
+                  label="Education" 
+                  value={parsedData.education.join(arraySeparator)} 
+                  section="education" 
+                  rows={4} 
+                  description="Separate each school/degree with '---' on a new line."
+                />
+                <EditableField 
+                  label="Skills" 
+                  value={parsedData.skills.join(arraySeparator)} 
+                  section="skills" 
+                  rows={4} 
+                  description="Separate each skill with '---' on a new line."
+                />
+            </div>
+          )}
+
           <div className="space-y-3">
             <Label>Choose a Template</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -89,7 +204,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ onSubmit, isLoading }) => {
               ))}
             </div>
           </div>
-          <Button type="submit" disabled={isLoading} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-6">
+          <Button type="submit" disabled={isLoading || isParsing} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-6">
             {isLoading ? (
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             ) : (
