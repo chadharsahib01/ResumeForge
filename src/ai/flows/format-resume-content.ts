@@ -37,12 +37,11 @@ const prompt = ai.definePrompt({
 Convert the provided raw resume text into a single, well-formed, self-contained HTML string.
 
 **CRITICAL INSTRUCTIONS:**
-1.  **OUTPUT MUST BE A SINGLE HTML STRING.**
-2.  **USE TAILWIND CSS CLASSES for all styling.** DO NOT use custom class names, <style> tags, or inline style attributes.
-3.  The entire output must be wrapped in a main container like: \`<div class="p-8 font-sans text-gray-800 bg-white">\`.
-4.  The design should be clean, professional, and easy to read. Pay attention to spacing, typography, and hierarchy.
-5.  Use the selected template name ({{{templateName}}}) as a guide for the overall aesthetic (e.g., 'Classic' should be more traditional, 'Creative' can use more color or unique layouts).
-6.  {{#if logoDataUri}}A personal logo has been provided. You MUST include it at the top of the resume inside the main wrapper. The image tag must be styled appropriately, for example: \`<img src="{{{logoDataUri}}}" alt="Personal Logo" class="mx-auto mb-6 h-16 w-16 rounded-full" />\`{{/if}}
+1.  **SINGLE HTML STRING:** The entire output must be a single HTML string.
+2.  **TAILWIND CSS ONLY:** Use only Tailwind CSS classes for all styling. Do not use <style> tags or inline style attributes.
+3.  **CONTAINER AND COLORS:** The entire output MUST be wrapped in a single container: \`<div class="p-8 font-sans bg-white text-gray-800">\`. This provides a solid white background and dark text.
+4.  **PROFESSIONAL DESIGN:** The design should be clean, professional, and easy to read. Pay close attention to spacing, typography, and hierarchy. Use the selected template name ({{{templateName}}}) as a guide for the overall aesthetic (e.g., 'Classic' should be more traditional, 'Creative' can use more color or unique layouts).
+5.  **LOGO INTEGRATION:** {{#if logoDataUri}}A personal logo has been provided. You MUST include it at the very top of the resume, right after the opening \`<div>\` tag. The image tag must be styled like this: \`<img src="{{{logoDataUri}}}" alt="Personal Logo" class="mx-auto mb-6 h-20 w-20 rounded-full border p-1" />\`{{/if}}
 
 **INPUTS:**
 -   **Resume Text:**

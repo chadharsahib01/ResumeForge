@@ -33,6 +33,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ formattedResume }) => {
       <div id="resume-content-wrapper">
         <div 
           id="resume-content"
+          className="bg-white"
           dangerouslySetInnerHTML={{ __html: formattedResume }} 
         />
       </div>
