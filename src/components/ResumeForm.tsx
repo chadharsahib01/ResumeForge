@@ -30,15 +30,15 @@ interface ResumeFormProps {
 
 const templates = [
   { name: 'Modern',
-    image: 'https://placehold.co/400x566/e0e7ff/4338ca.png',
+    image: 'https://placehold.co/400x566/e0e7ff/4f46e5',
     aiHint: 'resume modern'
   },
   { name: 'Classic',
-    image: 'https://placehold.co/400x566/f1f5f9/1e293b.png',
+    image: 'https://placehold.co/400x566/f1f5f9/1e293b',
     aiHint: 'resume classic'
   },
   { name: 'Creative',
-    image: 'https://placehold.co/400x566/f0fdf4/16a34a.png',
+    image: 'https://placehold.co/400x566/f0fdf4/16a34a',
     aiHint: 'resume creative'
   },
 ];

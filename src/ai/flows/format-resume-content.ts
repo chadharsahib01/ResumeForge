@@ -1,5 +1,4 @@
-// format-resume-content.ts
-'use server';
+{'use server';
 
 /**
  * @fileOverview Formats resume content based on a selected template.
@@ -14,12 +13,12 @@ import {z} from 'genkit';
 
 const FormatResumeContentInputSchema = z.object({
   resumeText: z.string().describe('The raw text of the resume content.'),
-  templateName: z.string().describe('The name of the selected resume template.'),
+  templateName: z.string().describe('The name of the selected resume template. One of "Modern", "Classic", or "Creative".'),
 });
 export type FormatResumeContentInput = z.infer<typeof FormatResumeContentInputSchema>;
 
 const FormatResumeContentOutputSchema = z.object({
-  formattedResume: z.string().describe('The formatted resume content, as an HTML string.'),
+  formattedResume: z.string().describe('The formatted resume content, as a single HTML string.'),
 });
 export type FormatResumeContentOutput = z.infer<typeof FormatResumeContentOutputSchema>;
 
@@ -31,31 +30,55 @@ const prompt = ai.definePrompt({
   name: 'formatResumeContentPrompt',
   input: {schema: FormatResumeContentInputSchema},
   output: {schema: FormatResumeContentOutputSchema},
-  prompt: `You are an AI resume formatting expert. You will take the raw resume text and format it into clean, semantic HTML based on the selected template style.
+  prompt: `You are an AI resume formatting expert. Your task is to convert raw resume text into clean, structured, and semantic HTML based on a selected template style.
 
-Resume Text:
+Resume Text to Format:
 {{{resumeText}}}
 
-Template Name:
+Selected Template Name:
 {{{templateName}}}
 
-Format the resume text into a single HTML string.
 **CRITICAL INSTRUCTIONS:**
-1.  **DO NOT USE INLINE CSS STYLES.**
-2.  **DO NOT INCLUDE \`<style>\`, \`<html>\`, \`<head>\`, or \`<body>\` tags.**
-3.  The final output must be just the HTML content for the resume body, ready to be injected into a \`<div>\`.
-4.  Use semantic class names to structure the content. For example:
-    -   Top-level sections: \`<div class="section">\` with a \`<h2 class="section-title">Work Experience</h2>\`
-    -   Contact info: \`<div class="contact-info">...\`
-    -   Summary: \`<div class="summary">...\`
-    -   Individual jobs/schools: \`<div class="entry">\`
-    -   Header for an entry: \`<div class="entry-header">\` containing title and date.
-    -   Sub-header for an entry: \`<div class="entry-subheader">\` containing company and location.
-    -   Titles: \`<span class="entry-title">Senior Engineer</span>\`
-    -   Dates: \`<span class="entry-date">Jan 2020 - Present</span>\`
-    -   Description points: \`<ul class="details"><li>...</li></ul>\`
-    -   Skills: \`<ul class="skills-list"><li>JavaScript</li>...</ul>\`
-This structure is essential for the styling to be applied correctly.
+1.  **DO NOT USE ANY INLINE CSS STYLES (e.g., \`<div style="...">\`).**
+2.  **DO NOT INCLUDE A \`<style>\` TAG, \`<html>\`, \`<head>\`, or \`<body>\` TAGS.**
+3.  The entire output must be a single, well-formed HTML string ready to be injected into a parent container.
+4.  Use the following semantic class names precisely as specified. This structure is essential for the front-end styling to be applied correctly.
+
+    -   **Main Container:** The entire resume should be wrapped in \`<div class="resume-wrapper">\`.
+    -   **Contact Info:** Use \`<div class="contact-info">\`. Inside, use simple \`<p>\` tags for name, email, phone, etc. The main name should be in an \`<h1>\`.
+    -   **Summary:** Use \`<div class="summary">\`. The content should be in a \`<p>\` tag.
+    -   **Sections (like Experience, Education):** Each major section must be wrapped in \`<div class="section">\`.
+    -   **Section Title:** Inside each section, the title must be an \`<h2 class="section-title">\`. For example: \`<h2 class="section-title">Work Experience</h2>\`.
+    -   **Individual Entries (Job, School):** Each entry within a section (e.g., a single job) must be in \`<div class="entry">\`.
+    -   **Entry Header:** The top part of an entry containing the title and date must be in \`<div class="entry-header">\`.
+    -   **Entry Sub-header:** The part of an entry with company/school and location must be in \`<div class="entry-subheader">\`.
+    -   **Specific Fields:**
+        -   Job Title/Degree: \`<span class="entry-title">Senior Engineer</span>\`
+        -   Company/School Name: \`<span class="entry-company">Tech Solutions Inc.</span>\` or \`<span class="entry-school">University of Technology</span>\`
+        -   Date Range: \`<span class="entry-date">Jan 2020 - Present</span>\`
+        -   Location: \`<span class="entry-location">Remote</span>\`
+    -   **Details/Bullet Points:** Use a \`<ul class="details">\` for description bullet points, with each point being an \`<li>\`.
+    -   **Skills:** For a skills section, use a \`<ul class="skills-list">\` with each skill being an \`<li>\`.
+
+Example of a "Work Experience" entry structure:
+\`\`\`html
+<div class="entry">
+  <div class="entry-header">
+    <span class="entry-title">Senior Software Engineer</span>
+    <span class="entry-date">Jan 2020 - Present</span>
+  </div>
+  <div class="entry-subheader">
+    <span class="entry-company">Tech Solutions Inc.</span>
+    <span class="entry-location">San Francisco, CA</span>
+  </div>
+  <ul class="details">
+    <li>Developed and maintained web applications using React and Node.js.</li>
+    <li>Led a team of 3 junior developers.</li>
+  </ul>
+</div>
+\`\`\`
+
+Now, generate the complete HTML for the provided resume text and template.
 `,
 });
 
@@ -70,31 +93,7 @@ const formatResumeContentFlow = ai.defineFlow(
     if (!output) {
       throw new Error('AI model did not return any content.');
     }
-    
-    const printStyles = `
-<style>
-  body { -webkit-print-color-adjust: exact; font-family: Arial, Helvetica, sans-serif; line-height: 1.5; color: #333; }
-  .resume-wrapper { padding: 1rem; }
-  h1, h2, h3, h4, h5, h6 { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #2c3e50; margin: 0; padding: 0; }
-  h2.section-title { font-size: 20px; color: #3F51B5; border-bottom: 2px solid #3F51B5; padding-bottom: 5px; margin-top: 20px; margin-bottom: 15px; }
-  .contact-info { text-align: center; margin-bottom: 20px; font-size: 14px; line-height: 1.6; }
-  .summary { margin-bottom: 20px; font-size: 15px; }
-  .section { margin-bottom: 20px; }
-  .entry { margin-bottom: 15px; page-break-inside: avoid; }
-  .entry-header, .entry-subheader { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: baseline; }
-  .entry-title { font-size: 18px; font-weight: bold; }
-  .entry-company, .entry-school { font-size: 16px; font-style: italic; color: #555; }
-  .entry-date { font-weight: normal; color: #555; font-size: 15px;}
-  .entry-location { font-style: italic; color: #555; }
-  ul.details { padding-left: 20px; margin-top: 5px; }
-  ul.details li { margin-bottom: 5px; }
-  .skills-list { list-style-type: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-  .skills-list li { background-color: #E9EBF8; color: #3F51B5; padding: 4px 10px; border-radius: 12px; font-size: 14px; }
-</style>
-`;
-    // The prompt now returns just the core HTML. We wrap it with styles.
-    const finalHtml = `${printStyles}<div class="resume-wrapper">${output.formattedResume}</div>`;
-
-    return { formattedResume: finalHtml };
+    // The prompt now generates the complete, clean HTML. We just return it.
+    return output;
   }
 );
