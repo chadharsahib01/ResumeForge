@@ -103,14 +103,14 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 container mx-auto py-8 px-4">
+      <main className="flex-1 container mx-auto py-10 px-4">
         <Tabs defaultValue="resume" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+          <TabsList className="grid w-full grid-cols-2 max-w-lg mx-auto mb-10">
             <TabsTrigger value="resume">Resume Builder</TabsTrigger>
             <TabsTrigger value="cover-letter">Cover Letter Generator</TabsTrigger>
           </TabsList>
-          <TabsContent value="resume" className="mt-6">
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <TabsContent value="resume">
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                 <ResumeForm 
                     onGenerateSubmit={handleGenerateResume} 
                     onParseAndRecommend={handleParseAndRecommend}
@@ -122,11 +122,11 @@ export default function Home() {
                     setParsedData={setParsedData}
                 />
                 <div className="lg:sticky top-8">
-                    <h2 className="text-2xl font-bold mb-4 text-foreground font-headline">Preview</h2>
-                    <Card className="h-auto min-h-[792px] lg:h-[792px] overflow-auto bg-card/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg">
+                    <h2 className="text-3xl font-bold mb-4 text-foreground font-headline text-center lg:text-left">Preview</h2>
+                    <Card className="h-auto min-h-[842px] lg:h-[842px] overflow-auto bg-white/50 dark:bg-card/50 backdrop-blur-2xl border-2 border-white/40 dark:border-white/10 shadow-2xl dark:shadow-primary/10">
                     <CardContent className="p-0">
                         {isLoading ? (
-                        <div className="space-y-4 p-6">
+                        <div className="space-y-4 p-8">
                             <Skeleton className="h-8 w-1/2" />
                             <Skeleton className="h-4 w-1/3" />
                             <Skeleton className="h-4 w-1/4" />
@@ -150,7 +150,7 @@ export default function Home() {
                 </div>
                 </div>
           </TabsContent>
-          <TabsContent value="cover-letter" className="mt-6">
+          <TabsContent value="cover-letter">
             <CoverLetterGenerator resumeText={resumeText} />
           </TabsContent>
         </Tabs>

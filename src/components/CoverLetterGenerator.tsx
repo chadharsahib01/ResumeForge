@@ -57,15 +57,15 @@ const CoverLetterGenerator: React.FC<CoverLetterGeneratorProps> = ({ resumeText 
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      <Card className="bg-card/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+      <Card className="bg-white/50 dark:bg-card/50 backdrop-blur-2xl border-2 border-white/40 dark:border-white/10 shadow-2xl dark:shadow-primary/10">
         <CardHeader>
-          <CardTitle className="font-headline">Cover Letter Generator</CardTitle>
+          <CardTitle className="font-headline text-2xl font-bold">Cover Letter Generator</CardTitle>
           <CardDescription>
-            Provide your resume details and a job description to generate a personalized cover letter.
+            Provide your resume and a job description to generate a personalized cover letter.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 pt-6">
           <div className="space-y-2">
             <Label htmlFor="resume-details-cl">Your Resume Details</Label>
             <Textarea
@@ -95,8 +95,8 @@ const CoverLetterGenerator: React.FC<CoverLetterGeneratorProps> = ({ resumeText 
         </CardContent>
       </Card>
       <div className="lg:sticky top-8">
-        <h2 className="text-2xl font-bold mb-4 text-foreground font-headline">Generated Letter</h2>
-        <Card className="h-auto min-h-[600px] lg:h-[600px] overflow-auto bg-card/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg relative group">
+        <h2 className="text-3xl font-bold mb-4 text-foreground font-headline text-center lg:text-left">Generated Letter</h2>
+        <Card className="h-auto min-h-[600px] lg:h-[600px] overflow-auto bg-white/50 dark:bg-card/50 backdrop-blur-2xl border-2 border-white/40 dark:border-white/10 shadow-2xl dark:shadow-primary/10 relative group">
           <CardContent className="p-6">
             {isLoading ? (
                <div className="space-y-4">

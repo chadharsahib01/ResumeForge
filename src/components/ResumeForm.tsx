@@ -110,11 +110,11 @@ const ResumeForm: React.FC<ResumeFormProps> = ({
   const arraySeparator = '\n---\n';
 
   return (
-    <Card className="bg-card/60 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg">
+    <Card className="bg-white/50 dark:bg-card/50 backdrop-blur-2xl border-2 border-white/40 dark:border-white/10 shadow-2xl dark:shadow-primary/10">
       <CardHeader>
         <div className="flex justify-between items-start">
             <div>
-                <CardTitle className="font-headline">Resume Details</CardTitle>
+                <CardTitle className="font-headline text-2xl font-bold">Resume Details</CardTitle>
                 <CardDescription>Paste your details, choose a template, and generate.</CardDescription>
             </div>
             {parsedData && (
@@ -125,7 +125,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({
             )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {!parsedData ? (
             <div className="space-y-2">
